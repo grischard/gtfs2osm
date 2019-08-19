@@ -1,0 +1,9 @@
+UPDATE stops SET stop_name = REPLACE(stop_name, ' St ', 'Saint-') WHERE stop_name LIKE '% St %';
+UPDATE stops SET stop_name = REPLACE(stop_name, ' St. ', 'Saint-') WHERE stop_name LIKE '% St. %';
+UPDATE stops SET stop_name = REPLACE(stop_name, ' St.', 'Saint-') WHERE stop_name LIKE '% St.%';
+UPDATE stops SET stop_name = REPLACE(stop_name, ' Ste ', 'Sainte-') WHERE stop_name LIKE '% Ste %';
+UPDATE stops SET stop_name = REPLACE(stop_name, 'P&R', 'P+R') WHERE stop_name LIKE '%P&R%';
+UPDATE stops SET stop_name = REPLACE(stop_name, '  ', ' ') WHERE stop_name LIKE '%  %';
+UPDATE stops SET stop_name = REPLACE(stop_name, 'Av.', 'Avenue') WHERE stop_name LIKE '%Av.%';
+UPDATE stops SET stop_name = REPLACE(stop_name, 'Bd.', 'Boulevard') WHERE stop_name LIKE '%Bd.%';
+UPDATE stops SET stop_name = REPLACE(stop_name, 'Pl.', 'Place') WHERE stop_name LIKE '%Pl.%';
