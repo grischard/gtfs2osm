@@ -13,6 +13,6 @@ gtfs_url='http://openov.lu/data/gtfs/gtfs-openov-lu.zip'
 gtfs_dir='/Users/stereo/osm/gtfs/test'
 
 #osm download url and working directory
-osm_url='https://osm.kewl.lu/luxembourg.osm/luxembourg.osm.pbf'
+osm_url='https://stereo.lu/osm/granderegion.osm.pbf'
 osm_dir='/Users/stereo/osm/gtfs/luxembourg'
 
