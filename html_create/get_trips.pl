@@ -28,7 +28,7 @@ binmode $fh, ":utf8";
 
 
 $sql = <<END_SQL;
-SELECT DISTINCT agency_name,route_short_name,trip_headsign,'s',stop_times.stop_id,stop_sequence,direction_id,trips.trip_id --,ignore_trips
+SELECT DISTINCT agency_name,route_short_name,trip_headsign,'s',stop_times.stop_id,stop_sequence,direction_id,trips.trip_id
 FROM agency,routes,trips,stop_times
 WHERE
 trips.route_id LIKE '$route'
@@ -36,7 +36,7 @@ AND direction_id = $direction
 AND agency.agency_id = routes.agency_id
 AND routes.route_id = trips.route_id
 AND trips.trip_id = stop_times.trip_id
---ORDER BY route_short_name, trip_headsign, stop_sequence
+ORDER BY route_short_name, trip_headsign, stop_sequence
 
 END_SQL
 
@@ -49,7 +49,7 @@ routes.route_id LIKE '$route'
 END_SQL
 
 
-#print $sql;
+# print $sql;
 my $inverse_dir=1-$direction;
 my $inv_filename = 'get_trips_'.$type.'_'.$agency.'_'.$route.'_'.$inverse_dir.'.html';
 
@@ -258,7 +258,8 @@ my $sql_find_rm=<<END_SQL;
 SELECT COUNT(*) FROM relations
 WHERE (tags->'type' = 'route_master'
 and tags->'route_master' = '$pt_osm'
-and tags->'ref:FR:STIF:ExternalCode_Line' = '$route');
+and tags->'ref' = '$r_ref')
+and tags->'network' = '$r_network';
 END_SQL
 
 #recherche sur ref
@@ -278,7 +279,7 @@ my $osm=<<END_OSM;
 <tag k="public_transport:version" v="2"/>
 <tag k="name" v="$r_name"/>
 <tag k="ref" v="$r_ref"/>
-<tag k="ref:FR:STIF:ExternalCode_Line" v="$route"/>
+<tag k="ref:verkeiersverbond" v="$route"/>
 <tag k="network" v="$r_network"/>
 <tag k="colour" v="$r_color"/>
 </relation>
@@ -286,7 +287,7 @@ my $osm=<<END_OSM;
 END_OSM
 
 my $enc_osm=uri_escape_utf8($osm);
-my $url_r="https://localhost:8112/load_data?new_layer=false&data=$enc_osm";
+my $url_r="http://localhost:8111/load_data?new_layer=false&data=$enc_osm";
 
 if ($count_rm == 0) {
 
@@ -313,7 +314,7 @@ $link_id
 <tr><td>name: $r_name</td></tr>
 <tr><td>network: $r_network</td></tr>
 <tr><td>ref: $r_ref</td></tr>
-<tr><td>ref:FR:STIF:ExternalCode_Line: $route</td></tr>
+<tr><td>ref:verkeiersverbond: $route</td></tr>
 <tr><td>colour: $r_color</td></tr>
 </table>
 END_HTML
@@ -323,7 +324,8 @@ my $sql_find_rm=<<END_SQL;
 SELECT id FROM relations
 WHERE (tags->'type' = 'route_master'
 and tags->'route_master' = '$pt_osm'
-and tags->'ref:FR:STIF:ExternalCode_Line' = '$route');
+and tags->'ref' = '$r_ref')
+and tags->'network' = '$r_network');
 END_SQL
 
 #recherche sur ref
@@ -357,7 +359,7 @@ print $fh <<END_HTML;
 <p>Il y a $count_rm relation route_master dans OpenStreetmap !<p>
 
 <p><a href="http://api.openstreetmap.org/api/0.6/relation/$id_rm/full">$id_rm</a></p>
-<p><a href="https://localhost:8112/import?url=http://api.openstreetmap.org/api/0.6/relation/$id_rm">charger JOSM</a></p>
+<p><a href="http://localhost:8111/import?url=http://api.openstreetmap.org/api/0.6/relation/$id_rm">charger JOSM</a></p>
 
 <div id="map" style="width: 640px; height: 400px; float: left;"></div>
 <script type='text/javascript'>

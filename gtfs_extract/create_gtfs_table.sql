@@ -1,6 +1,6 @@
-CREATE EXTENSION postgis;
-CREATE EXTENSION pg_trgm;
-CREATE EXTENSION hstore;
+CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS hstore;
 
 drop table if exists agency;
 drop table if exists stops;
@@ -30,7 +30,8 @@ create table agency (
   agency_timezone    varchar(255),
   agency_lang  varchar(255),
   agency_phone varchar(255),
-  agency_fare_url varchar(255)
+  agency_fare_url varchar(255),
+  agency_email varchar(255)
 );
 
 create table stops (
@@ -45,7 +46,8 @@ create table stops (
   location_type int,
   parent_station varchar(255),
   stop_timezone varchar(255),
-  wheelchair_boarding integer
+  wheelchair_boarding integer,
+  platform_code text
 );
 
 create table route_types (
@@ -89,6 +91,7 @@ create table trips (
   shape_id text,
   wheelchair_accessible int,
   bikes_allowed int,
+  trip_short_name text,
 -- nouvelle colonne qui indique s'il faut ignorer le trip
 -- car il est un subtrip
   is_subtrip boolean DEFAULT FALSE
@@ -110,7 +113,8 @@ create table stop_times (
   drop_off_type int , 
   shape_dist_traveled double precision,
   arrival_time_seconds int, 
-  departure_time_seconds int
+  departure_time_seconds int,
+  timepoint text
 );
 
 create table calendar (
@@ -144,7 +148,8 @@ create table calendar_dates (
    payment_method    int , 
    transfers   int,
    transfer_duration int,
-   agency_id text
+   agency_id text,
+   from_trip_id text
  );
 
  create table fare_rules (
@@ -171,7 +176,8 @@ create table calendar_dates (
    end_time    text , 
    headway_secs int , 
    start_time_seconds int,
-   end_time_seconds int
+   end_time_seconds int,
+   exact_times text
 );
 
  create table transfer_types (
@@ -186,7 +192,9 @@ create table calendar_dates (
    min_transfer_time int,
    from_route_id text, 
    to_route_id text, 
-   service_id text 
+   service_id text,
+   from_trip_id text,
+   to_trip_id text
  );
  
  create table feed_info (
@@ -194,7 +202,9 @@ create table calendar_dates (
    feed_publisher_url text,
    feed_timezone text,
    feed_lang text,
-   feed_version text
+   feed_version text,
+   feed_start_date text,
+   feed_end_date text
  );
 
 --Ajout de la géométrie dans les 2 tables stops et shapes

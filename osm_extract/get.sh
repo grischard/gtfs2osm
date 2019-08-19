@@ -2,7 +2,10 @@
 
 source ../config.sh
 
-rm $osm_dir/*
-echo `date` > $osm_dir/download_timestamp.txt
-wget $osm_url -O $osm_dir/latest.osm.pbf
+# rm $osm_dir/*
+cd $osm_dir
+date > download_timestamp.txt
+wget -N $osm_url 
+# ln -s *.pbf latest.osm.pbf
+
 

@@ -12,6 +12,6 @@ rm latest.o5m
 osmconvert reduced.osm --out-pbf >reduced.osm.pbf
 rm reduced.osm
 rm result_osmosis.txt
-osmosis --read-pbf reduced.osm.pbf --log-progress --write-pgsql database=$dbname host=$dbhost user=$dbuser password=$dbpwd >result_osmosis.txt 2>&1
+osmosis --read-pbf reduced.osm.pbf --log-progress --write-pgsql database=$dbname host=$dbhost user=$dbuser >result_osmosis.txt 2>&1
 
 popd

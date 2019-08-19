@@ -2,8 +2,6 @@
 
 source ./config.sh
 
-psql -a --username=$dbuser --host=$dbhost --command="drop database if exists $dbname;"
-psql -a --username=$dbuser --host=$dbhost --command="create database $dbname"
-psql -a --username=$dbuser --host=$dbhost --dbname=$dbname --command="create extension hstore; create extension postgis;"
-
-
+dropdb $dbname || exit 1
+createdb -E UTF8 -T template0 --locale=fr_FR.UTF-8 $dbname
+echo "CREATE EXTENSION postgis; create extension hstore" | psql -d $dbname

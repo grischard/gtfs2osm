@@ -38,11 +38,10 @@ binmode $fh, ":utf8";
 #binmode $fhjson, ":utf8";
 
 $sql = <<END_SQL;
-SELECT stop_name,stops.stop_id,stop_lat,stop_lon,arrival_time, zder_id_ref_a
-FROM stop_times,stops,stop_extensions
+SELECT stop_name,stops.stop_id,stop_lat,stop_lon,arrival_time
+FROM stop_times,stops
 WHERE stop_times.trip_id LIKE '$trip'
 AND stop_times.stop_id = stops.stop_id
-AND stop_extensions.stop_id = stops.stop_id
 ORDER BY stop_sequence
 END_SQL
 
@@ -84,16 +83,16 @@ while (@data = $query->fetchrow_array()) {
     $stop_lat{$data[1]}=$data[2];
     $stop_lon{$data[1]}=$data[3];
     $stop_time{$data[1]}=$data[4];
-#specific stif
-    $stop_id_stif{$data[1]}=$data[5];
+#specific vvb
+    $stop_id_vvb{$data[1]}=$data[5];
 }
 
 $grad=gradient(1, 99);
 $color_sim='';
 $color_dist='';
 
-#my $osrm_url = 'http://router.project-osrm.org/match/v1/driving/';
-my $osrm_url = 'https://zblackie.duckdns.org:89/match/v1/driving/';
+my $osrm_url = 'https://webertest.fix.lu:5000/match/v1/driving/';
+# my $osrm_url = 'https://routing.openstreetmap.de/match/v1/driving/';
 
 print $fh $head_html_leaflet;
 
@@ -126,7 +125,7 @@ END_OSM
 
 my $enc_osm=uri_escape_utf8($osm);
 
-my $url_r="https://localhost:8112/load_data?new_layer=false&data=$enc_osm";
+my $url_r="http://localhost:8111/load_data?new_layer=false&data=$enc_osm";
 
 print $fh <<END_HOME;
 <p><a href="type_of_pt.html">Home</a>
@@ -175,12 +174,12 @@ my $t = $stop_lat{$data}+0.0003;
 
 if ($result eq 'no') {
 
-my $url = "https://localhost:8112/add_node?lat=$stop_lat{$data}&lon=$stop_lon{$data}&addtags=highway=bus_stop%7Cpublic_transport=platform%7Cname=$stop_name{$data}";
+my $url = "http://localhost:8111/add_node?lat=$stop_lat{$data}&lon=$stop_lon{$data}&addtags=highway=bus_stop%7Cpublic_transport=platform%7Cname=$stop_name{$data}";
 
 $anchor = qq(<a href="$url" target="hide">ajouter arrêt</a>);
 } elsif ($sim < 10) {
 
-my $url = "https://localhost:8112/load_and_zoom?left=$l&right=$r&top=$t&bottom=$b&addtags=highway=bus_stop%7Cpublic_transport=platform%7Cname=$stop_name{$data}&select=node$node_id";
+my $url = "http://localhost:8111/load_and_zoom?left=$l&right=$r&top=$t&bottom=$b&addtags=highway=bus_stop%7Cpublic_transport=platform%7Cname=$stop_name{$data}&select=node$node_id";
 
 $anchor = qq(<a href="$url" target="hide">compléter arrêt</a>);
 
@@ -189,17 +188,17 @@ $anchor = '';
 };
 
 my $oclick = "map.fitBounds([[$b,$l],[$t,$r]]);";
-my $urlzone = "https://localhost:8112/load_and_zoom?left=$l&right=$r&top=$t&bottom=$b";
+my $urlzone = "http://localhost:8111/load_and_zoom?left=$l&right=$r&top=$t&bottom=$b";
 $zone = qq(<a href="$urlzone" onclick="$oclick" target="hide">zoom JOSM</a>);
 
 # test
 my $butoclick=$oclick."window.open(".qq('$urlzone','hide').");";
-$anchor = qq(<button class="cpy" data-clipboard-text="public_transport=platform ref:FR:STIF=$stop_id_stif{$data}" onclick="$butoclick">Copy josm data: Ctrl+Maj+V</button>);
+$anchor = qq(<button class="cpy" data-clipboard-text="public_transport=platform ref:verkeiersverbond=$stop_id_vvb{$data}" onclick="$butoclick">Copy josm data: Ctrl+Maj+V</button>);
 # fin test
 
 print $fh <<END_HTML;
 <tr>
-<td $color_sim>$stop_name{$data} [$stop_id_stif{$data}]</td>
+<td $color_sim>$stop_name{$data} [$stop_id_vvb{$data}]</td>
 <td $color_dist>$result</td>
 <td>$anchor</td>
 <td>$zone</td>
@@ -280,7 +279,7 @@ var myStyle = {
 
 var nodes = [];
 var legs;
-var loadurl="https://localhost:8112/load_object?referrers=true&objects=";
+var loadurl="http://localhost:8111/load_object?referrers=true&objects=";
 
 
 function get_itin() {
@@ -350,7 +349,7 @@ sub get_nearest_stops {
 if ($type eq '3') {
 $sql = <<END_SQL;
 
-SELECT stop_name,stops.stop_id,ST_Distance_Sphere(stops.geom,nodes.geom) AS dist,nodes.tags -> 'name' AS osmname, similarity (stop_name, nodes.tags -> 'name') AS simil, nodes.id
+SELECT stop_name,stops.stop_id,ST_DistanceSphere(stops.geom,nodes.geom) AS dist,nodes.tags -> 'name' AS osmname, similarity (stop_name, nodes.tags -> 'name') AS simil, nodes.id
 FROM stops, nodes
 WHERE stops.stop_id = '$stop'
 AND (nodes.tags -> 'highway' = 'bus_stop'

@@ -15,7 +15,7 @@ fi
 
 for file in $gtfs_dir/*.txt; do
 	head=`head -1 $file`
-	head=${head::-1}
+    # head=${head::-1}
 	table=$(basename "$file")
 	table="${table%.*}"
 	echo $table
@@ -23,7 +23,7 @@ for file in $gtfs_dir/*.txt; do
 	cat <<EOT >> $result
 copy $table ($head)
 from '$file'
-with delimiter ',' csv header;
+with delimiter ',' csv header ENCODING 'UTF8' ;
 
 EOT
 done
