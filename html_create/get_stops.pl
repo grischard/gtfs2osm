@@ -163,6 +163,7 @@ foreach my $data (@reduce_stop) {
 
 $osrm_url = $osrm_url.$stop_lon{$data}.','.$stop_lat{$data}.';';
 my ($h,$m,$s) = split(/:/,$stop_time{$data});
+$h = $h % 24;
 $dt->set(hour=>$h, minute=>$m, second=>$s);
 $timestamps = $timestamps.$dt->epoch().';';
 $radius=$radius.'20;';
@@ -349,7 +350,7 @@ sub get_nearest_stops {
 if ($type eq '3') {
 $sql = <<END_SQL;
 
-SELECT stop_name,stops.stop_id,ST_DistanceSphere(stops.geom,nodes.geom) AS dist,nodes.tags -> 'name' AS osmname, similarity (stop_name, nodes.tags -> 'name') AS simil, nodes.id
+SELECT stop_name,stops.stop_id,ST_DistanceSphere(stops.geom,nodes.geom) AS dist,nodes.tags -> 'name' AS osmname, similarity (stop_name, substring(nodes.tags -> 'name', '[^,]*')) AS simil, nodes.id
 FROM stops, nodes
 WHERE stops.stop_id = '$stop'
 AND (nodes.tags -> 'highway' = 'bus_stop'
@@ -364,7 +365,7 @@ END_SQL
 
 $sqlW = <<END_SQL;
 
-SELECT stop_name,stops.stop_id,ST_Distance_Sphere(stops.geom,ways.linestring) AS dist,ways.tags -> 'name' AS osmname, similarity (stop_name, ways.tags -> 'name') AS simil, ways.id
+SELECT stop_name,stops.stop_id,ST_DistanceSphere(stops.geom,ways.linestring) AS dist,ways.tags -> 'name' AS osmname, similarity (stop_name, substring(ways.tags -> 'name', '[^,]*')) AS simil, ways.id
 FROM stops, ways
 WHERE stops.stop_id = '$stop'
 AND (ways.tags -> 'public_transport' = 'station'
@@ -381,7 +382,7 @@ END_SQL
 } else {
 $sql = <<END_SQL;
 
-SELECT stop_name,stops.stop_id,ST_Distance_Sphere(stops.geom,nodes.geom) AS dist,nodes.tags -> 'name' AS osmname, similarity (stop_name, nodes.tags -> 'name') AS simil, nodes.id
+SELECT stop_name,stops.stop_id,ST_DistanceSphere(stops.geom,nodes.geom) AS dist,nodes.tags -> 'name' AS osmname, similarity (stop_name, substring(nodes.tags -> 'name', '[^,]*')) AS simil, nodes.id
 FROM stops, nodes
 WHERE stops.stop_id = '$stop'
 AND (nodes.tags -> 'railway' = 'station'
@@ -396,7 +397,7 @@ END_SQL
 
 $sqlW = <<END_SQL;
 
-SELECT stop_name,stops.stop_id,ST_Distance_Sphere(stops.geom,ways.linestring) AS dist,ways.tags -> 'name' AS osmname, similarity (stop_name, ways.tags -> 'name') AS simil, ways.id
+SELECT stop_name,stops.stop_id,ST_DistanceSphere(stops.geom,ways.linestring) AS dist,ways.tags -> 'name' AS osmname, similarity (stop_name, substring(ways.tags -> 'name', '[^,]*\\\$')) AS simil, ways.id
 FROM stops, ways
 WHERE stops.stop_id = '$stop'
 AND (ways.tags -> 'public_transport' = 'station'
